@@ -1,9 +1,9 @@
-!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surat Spesial Untuk kamu 💖</title>
+    <title>Surat Spesial Untuk Kamu 💖</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -153,16 +153,16 @@
         }
 
         .envelope.open .letter {
-            transform: translateX(-50%) translateY(-110px);
+            transform: translateX(-50%) translateY(-65px);
             z-index: 6;
-            height: 260px;
+            height: 250px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.15);
         }
 
         @media (min-width: 640px) {
             .envelope.open .letter {
-                transform: translateX(-50%) translateY(-125px);
-                height: 290px;
+                transform: translateX(-50%) translateY(-75px);
+                height: 270px;
             }
         }
 
@@ -207,9 +207,13 @@
             }
         }
 
-        /* Dodging button animation */
+        /* Animasi Transisi Tombol */
         #btnNo {
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #btnContainer {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -228,8 +232,8 @@
         <i id="musicIcon" class="fas fa-music"></i>
     </button>
 
-    <!-- Overlay backdrop when zoomed in -->
-    <div id="overlay" onclick="closeLetterFocus()" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-500"></div>
+    <!-- Overlay backdrop tanpa blur -->
+    <div id="overlay" onclick="closeLetterFocus()" class="fixed inset-0 bg-black/20 z-40 opacity-0 pointer-events-none transition-opacity duration-500"></div>
 
     <!-- Main Container -->
     <div class="flex flex-col items-center justify-center z-10 w-full max-w-sm">
@@ -265,12 +269,12 @@
                         </div>
 
                         <div class="w-full my-2">
-                            <p class="text-xs font-bold text-[#d85040] mb-3">Kamu sayang gak sama aku?</p>
-                            <div class="flex items-center justify-center gap-3 relative min-h-[42px]">
-                                <button onclick="nextSlide(2, event)" class="bg-[#d85040] hover:bg-[#c24334] text-white text-xs font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95">
-                                    Sayang Banget! 🥰
+                            <p class="text-xs font-bold text-[#d85040] mb-3">Kangen ga sama aku?</p>
+                            <div id="btnContainer" class="flex items-center justify-center gap-3 relative min-h-[48px] w-full px-4">
+                                <button id="btnYes" onclick="nextSlide(2, event)" class="bg-[#d85040] hover:bg-[#c24334] text-white text-xs font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 z-10">
+                                    Kangen Banget! 🥰
                                 </button>
-                                <button id="btnNo" onmouseenter="dodgeNoButton()" onclick="dodgeNoButton()" class="bg-gray-200 text-gray-600 text-xs font-bold py-2 px-4 rounded-xl transition">
+                                <button id="btnNo" onclick="handleNoClick(event)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold py-2 px-4 rounded-xl transition active:scale-95">
                                     Gak 😜
                                 </button>
                             </div>
@@ -283,14 +287,14 @@
                             <span class="inline-block bg-rose-50 text-[#d85040] text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-2">
                                 Yeayyy! 🥰
                             </span>
-                            <h2 class="font-handwriting text-3xl text-[#d85040]">Aku juga sayang banget! ❤️</h2>
+                            <h2 class="font-handwriting text-3xl text-[#d85040]">Aku juga kangen banget! ❤️</h2>
                             <p class="text-xs sm:text-sm text-gray-700 font-cute mt-3 leading-relaxed">
-                                Pertanyaan berikutnya... Weekend ini kamu ada waktu gak? 🤔
+                                Pertanyaan berikutnya... 🥺
                             </p>
                         </div>
 
                         <div class="w-full my-2">
-                            <p class="text-xs font-bold text-[#d85040] mb-3">Jalan-jalan bareng aku mau gak? 🍿✨</p>
+                            <p class="text-xs font-bold text-[#d85040] mb-3">kamu mau ga kita main kayak dulu lagi? 🍿✨</p>
                             <div class="flex items-center justify-center gap-2">
                                 <button onclick="nextSlide(3, event)" class="bg-[#d85040] hover:bg-[#c24334] text-white text-xs font-bold py-2 px-3 rounded-xl shadow-md transition active:scale-95">
                                     Mauuu!! 🥳
@@ -340,6 +344,7 @@
         let isFocused = false;
         let isMusicPlaying = false;
         let currentSlide = 1;
+        let noClickCount = 0; // Menghitung klik tombol gak
 
         function toggleEnvelope() {
             if (!isOpen) {
@@ -356,7 +361,6 @@
             isOpen = true;
             envelope.classList.add('open');
 
-            // Switch button style & text to CLOSE
             toggleBtn.innerText = 'CLOSE';
             toggleBtn.classList.remove('bg-transparent', 'text-[#d85040]');
             toggleBtn.classList.add('bg-[#d85040]', 'text-white');
@@ -366,13 +370,6 @@
             }
 
             spawnHeartBurst();
-
-            // Zoom in on letter automatically after slide-up finishes
-            setTimeout(() => {
-                if (isOpen && !isFocused) {
-                    expandLetter();
-                }
-            }, 800);
         }
 
         function closeEnvelope() {
@@ -384,7 +381,6 @@
             isOpen = false;
             envelope.classList.remove('open');
 
-            // Switch button style & text back to OPEN
             toggleBtn.innerText = 'OPEN';
             toggleBtn.classList.remove('bg-[#d85040]', 'text-white');
             toggleBtn.classList.add('bg-transparent', 'text-[#d85040]');
@@ -415,6 +411,27 @@
             overlay.classList.add('opacity-0', 'pointer-events-none');
         }
 
+        // Handle Penekanan Tombol "Gak"
+        function handleNoClick(e) {
+            if (e) e.stopPropagation();
+            noClickCount++;
+
+            const btnNo = document.getElementById('btnNo');
+
+            if (noClickCount === 1) {
+                // Menghindar pertama
+                btnNo.style.transform = 'translate(-60px, -35px)';
+            } else if (noClickCount === 2) {
+                // Menghindar kedua
+                btnNo.style.transform = 'translate(60px, 35px)';
+            } else if (noClickCount >= 3) {
+                // Klik ketiga: Hilang & Tombol Kangen Banget jadi di tengah
+                btnNo.style.display = 'none';
+                const btnYes = document.getElementById('btnYes');
+                btnYes.classList.add('mx-auto');
+            }
+        }
+
         // Slide progression inside letter
         function nextSlide(slideNum, e) {
             if (e) e.stopPropagation();
@@ -424,14 +441,6 @@
             currentSlide = slideNum;
 
             spawnHeartBurst();
-        }
-
-        // Funny dodging "Gak" button
-        function dodgeNoButton() {
-            const btnNo = document.getElementById('btnNo');
-            const x = Math.random() * 120 - 60;
-            const y = Math.random() * 80 - 40;
-            btnNo.style.transform = `translate(${x}px, ${y}px)`;
         }
 
         // Heart Particles Logic
@@ -492,10 +501,9 @@
         // WhatsApp Reply Action
         function sendReply(e) {
             if (e) e.stopPropagation();
-            const text = encodeURIComponent("Makasih ya suratnya! Aku sayang banget sama kamu! 🥰💖✨");
+            const text = encodeURIComponent("Makasih ya suratnya! Aku kangen banget dan mau kita main kayak dulu lagi! 🥰💖✨");
             window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
         }
     </script>
 </body>
 </html>
-```
